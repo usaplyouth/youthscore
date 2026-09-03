@@ -10,23 +10,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1B2A4A; --navy:#12203D; --paper:#FAFBFD; --steel:#5B6B85;
+    --ink:#1B2A4A; --navy:#12203D; --paper:#FFFFFF; --steel:#5B6B85;
     --rule:#D8DEE9; --signal:#C8102E; --field:#FFFFFF;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Archivo',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5}
   /* hero */
-  .hero{background:var(--navy);color:var(--paper);padding:2.5rem 1rem 2.75rem;text-align:center}
+  .hero{background:#FFFFFF;color:var(--ink);padding:2.5rem 1rem 2.25rem;text-align:center;border-bottom:1px solid var(--rule)}
   .hero img{width:min(15rem,60vw);height:auto;display:block;margin:0 auto}
   .hero h1{font-size:clamp(1.6rem,4.5vw,2.3rem);font-weight:900;letter-spacing:-.015em;margin-top:1.4rem;line-height:1.1}
-  .hero p{color:#B9C4D8;font-size:.95rem;max-width:34rem;margin:.7rem auto 0}
+  .hero p{color:var(--steel);font-size:.95rem;max-width:34rem;margin:.7rem auto 0}
   .draft{
     display:inline-block;margin-top:1.1rem;padding:.35rem .8rem;border:1.5px solid var(--signal);
-    border-radius:2rem;color:#FFD7DD;font-size:.8rem;font-weight:700;
+    border-radius:2rem;color:var(--signal);font-size:.8rem;font-weight:700;
   }
   /* tools */
   .wrap{max-width:42rem;margin:0 auto;padding:0 1rem 3rem}
-  .tools{display:grid;gap:.9rem;grid-template-columns:1fr;margin-top:-1.4rem}
+  .tools{display:grid;gap:.9rem;grid-template-columns:1fr;margin-top:1.4rem}
   @media(min-width:38rem){.tools{grid-template-columns:1fr 1fr}}
   .tool{
     display:block;text-decoration:none;color:var(--ink);background:var(--field);

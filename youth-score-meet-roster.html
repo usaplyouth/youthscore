@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Youth Score — Meet Roster (Draft Proposal)</title>
+<meta name="description" content="Score a full youth roster (up to 100 athletes) with the proposed USAPL youth best lifter formula. Ranks within each division and shows the six award leaders.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A4A; --paper:#FAFBFD; --steel:#5B6B85; --rule:#D8DEE9;
+    --signal:#C8102E; --field:#FFFFFF; --gold:#F4E9CD;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Archivo',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.4;padding:1.25rem 1rem 3rem}
+  .wrap{max-width:64rem;margin:0 auto}
+  h1{font-size:1.45rem;font-weight:800;letter-spacing:-.01em}
+  p.sub{color:var(--steel);font-size:.85rem;margin-top:.3rem;max-width:44rem}
+  /* toolbar */
+  .bar{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.2rem 0 .9rem}
+  button{
+    font:inherit;font-weight:600;font-size:.85rem;padding:.5rem .8rem;cursor:pointer;
+    background:var(--field);border:1.5px solid var(--rule);border-radius:.35rem;color:var(--ink);
+  }
+  button.primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2.5px solid var(--ink);outline-offset:1px}
+  .count{margin-left:auto;align-self:center;font-size:.8rem;color:var(--steel)}
+  /* leaders */
+  .leaders{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.6rem;margin-bottom:1.2rem}
+  .leader{border:1.5px solid var(--rule);border-radius:.4rem;padding:.6rem .75rem;background:var(--field)}
+  .leader .div{font-size:.75rem;font-weight:700;color:var(--steel)}
+  .leader .who{font-weight:800;font-size:1rem;margin-top:.1rem}
+  .leader .pts{font-variant-numeric:tabular-nums;color:var(--signal);font-weight:800}
+  .leader .none{color:var(--steel);font-weight:400;font-size:.85rem}
+  .leader.overall{border-color:var(--ink);border-width:2px;background:var(--paper)}
+  .leader.overall .div{color:var(--ink)}
+  /* table */
+  .tblwrap{overflow-x:auto;border:1.5px solid var(--rule);border-radius:.4rem;background:var(--field)}
+  table{border-collapse:collapse;width:100%;min-width:52rem}
+  th{font-size:.72rem;font-weight:700;text-align:left;color:var(--steel);padding:.5rem .5rem;border-bottom:2px solid var(--ink);white-space:nowrap}
+  td{padding:.25rem .4rem;border-bottom:1px solid var(--rule);font-size:.88rem;vertical-align:middle}
+  tr.lead td{background:var(--gold)}
+  td input,td select{
+    font:inherit;font-size:.88rem;border:1px solid transparent;border-radius:.25rem;
+    background:transparent;padding:.35rem .3rem;width:100%;color:var(--ink);
+  }
+  td input:hover,td select:hover{border-color:var(--rule)}
+  td input:focus,td select:focus{background:#fff;border-color:var(--ink)}
+  td.name{min-width:11rem}
+  td.num{width:6rem}
+  td.calc{font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.score{font-weight:800}
+  td.rank1{color:var(--signal)}
+  td .del{border:0;background:none;color:var(--steel);font-size:1rem;padding:.2rem .4rem;cursor:pointer}
+  td .del:hover{color:var(--signal)}
+  td.bad input{color:var(--signal)}
+  /* paste dialog */
+  dialog{border:2px solid var(--ink);border-radius:.5rem;padding:1.2rem;max-width:34rem;width:92vw}
+  dialog::backdrop{background:rgba(27,42,74,.45)}
+  dialog h2{font-size:1.05rem;margin-bottom:.4rem}
+  dialog p{font-size:.82rem;color:var(--steel);margin-bottom:.6rem}
+  dialog textarea{width:100%;height:11rem;font:inherit;font-size:.85rem;border:1.5px solid var(--rule);border-radius:.35rem;padding:.6rem}
+  dialog .row{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.8rem}
+  footer{margin-top:1.6rem;font-size:.75rem;color:var(--steel);max-width:44rem}
+  footer strong{color:var(--ink)}
+  @media print{
+    .bar,dialog,td .del,footer .noprint{display:none}
+    body{padding:0;background:#fff}
+    .tblwrap{border:0}
+    td input,td select{border:0;-webkit-appearance:none;appearance:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="youth-score-home.html" style="display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--steel);font-size:.8rem;font-weight:600;margin-bottom:1rem"><img src="usapl-youth-logo-mark.jpeg" alt="USA Powerlifting Youth" style="height:3.2rem;width:auto;border-radius:.35rem;background:#12203D;padding:.25rem .4rem"><span>Youth Score home</span></a>
+
+  <h1>Youth Score — Meet Roster</h1>
+  <p class="sub">Score a youth session (ages 8&ndash;13) with the proposed USAPL youth formula. Scores and division ranks update as you type; the six award leaders (Y1/Y2/Y3 &times; boys/girls) stay pinned above the table. Data stays on this device &mdash; export a CSV to save results.</p>
+  <span style="display:inline-block;margin-top:.55rem;padding:.28rem .7rem;border:1.5px solid var(--signal);border-radius:2rem;color:var(--signal);font-size:.78rem;font-weight:700">Draft &mdash; proposal before the USAPL Youth Committee</span>
+
+  <div class="bar">
+    <button class="primary" id="addRow">Add athlete</button>
+    <button id="add10">Add 10 rows</button>
+    <button id="pasteBtn">Paste from spreadsheet</button>
+    <button id="exportBtn">Export results CSV</button>
+    <button id="printBtn">Print results</button>
+    <button id="clearBtn">Clear all</button>
+    <span class="count" id="count">0 of 100 athletes</span>
+  </div>
+
+  <div class="leaders" id="leaders"></div>
+
+  <div class="tblwrap">
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th>#</th><th>Name</th><th>Sex</th><th>Age</th><th>Bodyweight (kg)</th>
+        <th>Total (kg)</th><th>Division</th><th>Expected (kg)</th><th>Score</th><th>Division rank</th><th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+
+  <footer>
+    <p><strong>Status: committee proposal</strong> &mdash; not yet an official USAPL formula. Score = 100 &times; Total &divide; (A &times; BW<sup>k</sup> &times; AgeFactor), coefficients fit on 2,156 USAPL youth results 2020&ndash;2026. Valid for ages 8&ndash;13, bodyweights ~18&ndash;130 kg. Division is derived from age: Y1 = 8&ndash;9, Y2 = 10&ndash;11, Y3 = 12&ndash;13. <span class="noprint">Refreshing the page keeps your roster on this device when browser storage is available; export a CSV before closing to be safe.</span></p>
+  </footer>
+</div>
+
+<dialog id="pasteDlg">
+  <h2>Paste from a spreadsheet</h2>
+  <p>Copy rows from Excel or Sheets with columns in this order: <b>Name, Sex, Age, Bodyweight, Total</b> (no header needed). Sex can be M/F, Male/Female, Boy/Girl. One athlete per line.</p>
+  <textarea id="pasteBox" placeholder="Jordan Smith	M	11	43.5	215"></textarea>
+  <div class="row">
+    <button id="pasteCancel">Cancel</button>
+    <button class="primary" id="pasteGo">Import</button>
+  </div>
+</dialog>
+
+<script>
+'use strict';
+const MODEL = {
+  M: { A: 19.6226, k: 0.6198, m: {8:0.5978, 9:0.6673, 10:0.6928, 11:0.7799, 12:0.8302, 13:1.0} },
+  F: { A: 25.7834, k: 0.5135, m: {8:0.6424, 9:0.7409, 10:0.745, 11:0.8396, 12:0.9116, 13:1.0} }
+};
+const MAXN = 100, BW_LO = 18, BW_HI = 130;
+const DIV = a => a<=9 ? 'Y1' : a<=11 ? 'Y2' : 'Y3';
+const DIVNAME = {Y1:'Youth 1 (8-9)', Y2:'Youth 2 (10-11)', Y3:'Youth 3 (12-13)'};
+
+let roster = []; // {name, sex:'M'|'F', age, bw, total}
+
+// ---- persistence (graceful: works if storage available, silent if not) ----
+function save(){ try{ localStorage.setItem('youthRoster', JSON.stringify(roster)); }catch(e){} }
+function load(){ try{ const r = JSON.parse(localStorage.getItem('youthRoster')||'[]'); if(Array.isArray(r)) roster = r.slice(0,MAXN); }catch(e){} }
+
+// ---- scoring ----
+function scoreOf(a){
+  if(!a || !a.sex || !a.age || !(a.bw>0) || !(a.total>0)) return null;
+  const p = MODEL[a.sex]; if(!p || !p.m[a.age]) return null;
+  const exp = p.A * Math.pow(a.bw, p.k) * p.m[a.age];
+  return { exp, score: 100*a.total/exp };
+}
+function ranks(){
+  // rank within sex+division by score, 1 = leader
+  const out = roster.map(()=>null), groups = {};
+  roster.forEach((a,i)=>{
+    const s = scoreOf(a); if(!s) return;
+    const key = a.sex + DIV(a.age);
+    (groups[key] = groups[key]||[]).push({i, score:s.score});
+  });
+  for(const key in groups){
+    groups[key].sort((x,y)=>y.score-x.score);
+    groups[key].forEach((e,pos)=>{ out[e.i] = pos+1; });
+  }
+  return out;
+}
+
+// ---- render ----
+const tbody = document.getElementById('tbody');
+function render(){
+  const rk = ranks();
+  tbody.innerHTML = '';
+  roster.forEach((a,i)=>{
+    const s = scoreOf(a);
+    const tr = document.createElement('tr');
+    if(rk[i]===1) tr.className='lead';
+    const bwBad = a.bw>0 && (a.bw<BW_LO || a.bw>BW_HI);
+    tr.innerHTML =
+      '<td class="calc">'+(i+1)+'</td>'+
+      '<td class="name"><input data-i="'+i+'" data-f="name" value="'+esc(a.name)+'" placeholder="Name" aria-label="Name row '+(i+1)+'"></td>'+
+      '<td><select data-i="'+i+'" data-f="sex" aria-label="Sex row '+(i+1)+'">'+
+        '<option value=""'+(!a.sex?' selected':'')+'></option>'+
+        '<option value="M"'+(a.sex==='M'?' selected':'')+'>M</option>'+
+        '<option value="F"'+(a.sex==='F'?' selected':'')+'>F</option></select></td>'+
+      '<td><select data-i="'+i+'" data-f="age" aria-label="Age row '+(i+1)+'">'+
+        '<option value=""'+(!a.age?' selected':'')+'></option>'+
+        [8,9,10,11,12,13].map(x=>'<option value="'+x+'"'+(a.age===x?' selected':'')+'>'+x+'</option>').join('')+
+        '</select></td>'+
+      '<td class="num'+(bwBad?' bad':'')+'"><input data-i="'+i+'" data-f="bw" type="number" step="0.1" min="0" value="'+(a.bw||'')+'" placeholder="kg" aria-label="Bodyweight row '+(i+1)+'"'+(bwBad?' title="Outside observed 18-130 kg range; score is an extrapolation"':'')+'></td>'+
+      '<td class="num"><input data-i="'+i+'" data-f="total" type="number" step="0.5" min="0" value="'+(a.total||'')+'" placeholder="kg" aria-label="Total row '+(i+1)+'"></td>'+
+      '<td class="calc">'+(a.age?DIV(a.age):'')+'</td>'+
+      '<td class="calc">'+(s?s.exp.toFixed(0):'')+'</td>'+
+      '<td class="calc score">'+(s?s.score.toFixed(1):'')+'</td>'+
+      '<td class="calc'+(rk[i]===1?' rank1':'')+'">'+(rk[i]? (rk[i]===1?'1 — leader':rk[i]) : '')+'</td>'+
+      '<td><button class="del" data-del="'+i+'" title="Remove athlete" aria-label="Remove row '+(i+1)+'">&times;</button></td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('count').textContent = roster.length + ' of ' + MAXN + ' athletes';
+  renderLeaders(rk);
+  save();
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+function renderLeaders(rk){
+  const el = document.getElementById('leaders');
+  el.innerHTML = '';
+  // Overall best lifter, one per sex (best across Y1-Y3) — typical for local meets
+  ['M','F'].forEach(sex=>{
+    let best = null;
+    roster.forEach((a,i)=>{
+      if(a.sex!==sex || !a.age) return;
+      const s = scoreOf(a); if(!s) return;
+      if(!best || s.score > best.score) best = {name:a.name||('Athlete '+(i+1)), score:s.score, dv:DIV(a.age)};
+    });
+    const d = document.createElement('div');
+    d.className='leader overall';
+    d.innerHTML = '<div class="div">'+(sex==='M'?'Boys':'Girls')+' overall best lifter &middot; all Youth</div>'+
+      (best ? '<div class="who">'+esc(best.name)+' <span class="pts">'+best.score.toFixed(1)+'</span> <span style="font-weight:400;font-size:.8rem;color:var(--steel)">'+best.dv+'</span></div>'
+            : '<div class="who none">No scored athletes yet</div>');
+    el.appendChild(d);
+  });
+  ['M','F'].forEach(sex=>{
+    ['Y1','Y2','Y3'].forEach(dv=>{
+      let best = null;
+      roster.forEach((a,i)=>{
+        if(a.sex!==sex || !a.age || DIV(a.age)!==dv) return;
+        const s = scoreOf(a); if(!s) return;
+        if(!best || s.score > best.score) best = {name:a.name||('Athlete '+(i+1)), score:s.score};
+      });
+      const d = document.createElement('div');
+      d.className='leader';
+      d.innerHTML = '<div class="div">'+(sex==='M'?'Boys':'Girls')+' &middot; '+DIVNAME[dv]+'</div>'+
+        (best ? '<div class="who">'+esc(best.name)+' <span class="pts">'+best.score.toFixed(1)+'</span></div>'
+              : '<div class="who none">No scored athletes yet</div>');
+      el.appendChild(d);
+    });
+  });
+}
+
+// ---- events ----
+tbody.addEventListener('input', e=>{
+  const i = +e.target.dataset.i, f = e.target.dataset.f;
+  if(f===undefined) return;
+  const a = roster[i]; if(!a) return;
+  if(f==='name') a.name = e.target.value;
+  if(f==='sex')  a.sex  = e.target.value || null;
+  if(f==='age')  a.age  = e.target.value ? +e.target.value : null;
+  if(f==='bw')   a.bw   = parseFloat(e.target.value) || null;
+  if(f==='total')a.total= parseFloat(e.target.value) || null;
+  if(f==='name'){ // don't rebuild the row being typed in; just refresh calc bits
+    renderLeaders(ranks()); save(); return;
+  }
+  const active = document.activeElement;
+  const pos = active && active.selectionStart;
+  render();
+  // restore focus to the equivalent field after rebuild
+  const again = tbody.querySelector('[data-i="'+i+'"][data-f="'+f+'"]');
+  if(again){ again.focus(); if(pos!=null && again.setSelectionRange){ try{again.setSelectionRange(pos,pos);}catch(_){} } }
+});
+tbody.addEventListener('click', e=>{
+  if(e.target.dataset.del!==undefined){ roster.splice(+e.target.dataset.del,1); render(); }
+});
+document.getElementById('addRow').onclick = ()=>{ if(roster.length<MAXN){ roster.push({}); render(); } };
+document.getElementById('add10').onclick  = ()=>{ for(let j=0;j<10 && roster.length<MAXN;j++) roster.push({}); render(); };
+document.getElementById('clearBtn').onclick = ()=>{ if(confirm('Remove all athletes?')){ roster=[]; render(); } };
+
+// paste import
+const dlg = document.getElementById('pasteDlg');
+document.getElementById('pasteBtn').onclick = ()=>{ document.getElementById('pasteBox').value=''; dlg.showModal(); };
+document.getElementById('pasteCancel').onclick = ()=> dlg.close();
+document.getElementById('pasteGo').onclick = ()=>{
+  const lines = document.getElementById('pasteBox').value.split(/\r?\n/).filter(l=>l.trim());
+  let added = 0, skipped = 0;
+  for(const line of lines){
+    if(roster.length>=MAXN) break;
+    const parts = line.split(/\t|,/).map(x=>x.trim());
+    if(parts.length<5){ skipped++; continue; }
+    const [name,sexRaw,ageRaw,bwRaw,totRaw] = parts;
+    const sx = /^(m|male|boy)$/i.test(sexRaw)?'M':/^(f|female|girl)$/i.test(sexRaw)?'F':null;
+    const age = +ageRaw, bw = parseFloat(bwRaw), tot = parseFloat(totRaw);
+    if(/name/i.test(name) && !sx){ continue; } // header row
+    if(!sx || !(age>=8&&age<=13) || !(bw>0) || !(tot>0)){ skipped++; continue; }
+    roster.push({name, sex:sx, age, bw, total:tot}); added++;
+  }
+  dlg.close(); render();
+  if(skipped) alert(added+' athlete(s) imported, '+skipped+' line(s) skipped (need Name, Sex, Age 8-13, Bodyweight, Total).');
+};
+
+// export
+document.getElementById('exportBtn').onclick = ()=>{
+  const rk = ranks();
+  let csv = 'Name,Sex,Age,Division,Bodyweight_kg,Total_kg,Expected_kg,YouthScore,DivisionRank\n';
+  roster.forEach((a,i)=>{
+    const s = scoreOf(a);
+    csv += [ '"'+String(a.name||'').replace(/"/g,'""')+'"', a.sex||'', a.age||'',
+      a.age?DIV(a.age):'', a.bw||'', a.total||'',
+      s?s.exp.toFixed(1):'', s?s.score.toFixed(1):'', rk[i]||'' ].join(',')+'\n';
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const aEl = document.createElement('a');
+  aEl.href = URL.createObjectURL(blob);
+  aEl.download = 'youth-scores.csv';
+  aEl.click();
+  URL.revokeObjectURL(aEl.href);
+};
+document.getElementById('printBtn').onclick = ()=> window.print();
+
+// init
+load();
+if(roster.length===0) for(let j=0;j<5;j++) roster.push({});
+render();
+</script>
+</body>
+</html>
